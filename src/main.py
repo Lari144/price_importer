@@ -1,3 +1,4 @@
+import argparse
 import pandas
 import matplotlib.pyplot as plt
 
@@ -12,13 +13,12 @@ class Import():
         data.drop(data.columns[-1], axis=1, inplace=True)
         data.columns = ['Company', 'Date',
                         'Price', 'Currency', 'Location']
-        print(data)
         return data
 
 
 class Visualize():
     @staticmethod
-    def visualization(data):
+    def visualization(data, plot_type):
         data['Price'] = pandas.to_numeric(data['Price'], errors='coerce')
         data['Date'] = pandas.to_datetime(
             data['Date'], unit='s').dt.strftime('%Y-%m-%d')
@@ -26,7 +26,11 @@ class Visualize():
             data['Location'] + '\n' + data['Date']
         grouped = data.groupby(['Companies'])[
             'Price'].mean()
-        grouped.plot(kind='bar', figsize=(8, 6))
+
+        if plot_type == 'bar':
+            grouped.plot(kind='bar', figsize=(8, 6))
+        elif plot_type == 'pie':
+            grouped.plot(kind='pie', figsize=(8, 6))
 
         plt.ylabel('Price')
         plt.title('Prices by Location')
@@ -37,9 +41,15 @@ class Visualize():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('path')
+    parser.add_argument(
+        'plot_type', choices=['bar', 'pie'])
+    args = parser.parse_args()
+
     importer = Import('test.csv')
     data = importer.read_data()
-    Visualize.visualization(data)
+    Visualize.visualization(data, args.plot_type)
 
 
 if __name__ == '__main__':
