@@ -1,8 +1,10 @@
-import pytest
 from os.path import isfile
 from os import access, R_OK
+from src import Import
+import pandas
 
 file = '../test.csv'
+importer = Import(file)
 
 
 def test_file():
@@ -11,14 +13,17 @@ def test_file():
 
 
 def test_expected_data():
-    expected_final_data = ['Company', 'Date', 'Price', 'Currency', 'Location'
-                           'Lenzing', '170447112', '34.75', 'EUR', 'Vienna'
-                           'Andritz', '170447131', '59.41', 'USD', 'New York'
-                           'EVN', '170447132', '28.55', 'EUR', 'Vienna'
-                           'EVN', '170447133', '31.18', 'USD', 'New York']
-    assert read_data == expected_data
+    expected_final_data = pandas.DataFrame({
+        'Company': ['Lenzing', 'Andritz', 'EVN', 'EVN'],
+        'Date': [170447112, 170447131, 170447132, 170447133],
+        'Price': [34.75, 59.41, 28.55, 31.18],
+        'Currency': ['EUR', 'USD', 'EUR', 'USD'],
+        'Location': ['Vienna', 'New York', 'Vienna', 'New York']
+    })
+    pandas.testing.assert_frame_equal(
+        importer.read_data(), expected_final_data)
 
 
 def test_data_format():
-    for row in read_data:
+    for _, row in importer.read_data().iterrows():
         assert len(row) == 5
