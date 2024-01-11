@@ -1,6 +1,6 @@
 from os.path import isfile
 from os import access, R_OK
-from src import Import
+from src import Import, Visualize
 import pandas
 
 file = '../test.csv'
@@ -27,3 +27,18 @@ def test_expected_data():
 def test_data_format():
     for _, row in importer.read_data().iterrows():
         assert len(row) == 5
+
+
+def test_data_types():
+    data = importer.read_data()
+    assert pandas.api.types.is_numeric_dtype(
+        data['Price']), "Price column is not numeric"
+    assert pandas.api.types.is_numeric_dtype(
+        data['Date']), "Date column is not datetime type"
+
+
+def test_grouping_logic():
+    data = importer.read_data()
+    grouped = data.groupby(['Company', 'Location'])['Price'].mean()
+    assert 'Company' in grouped.index.names, "Grouping by Company failed"
+    assert 'Location' in grouped.index.names, "Grouping by Location failed"

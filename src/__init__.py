@@ -1,3 +1,3 @@
-from .main import Import
+from .main import Import, Visualize
 
-__exports__ = [Import]
+__exports__ = [Import, Visualize]
